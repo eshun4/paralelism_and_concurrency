@@ -1,30 +1,19 @@
 import time
-# import threading
 
-
-from workers.wikiWorker import WikiWorker
-from workers.yahooFinanceWorkers import YahooFinanceWorker
+from yaml_reader import YamlPipelineExecutor
 
 
 
 def main():
-    scraper_start_time = time.time()
-    
-    wikiWorker = WikiWorker()
-    current_workers = []
-    for symbol in wikiWorker.get_s_and_p_500_companies():
-        financeWorker = YahooFinanceWorker(symbol=symbol)
-        current_workers.append(financeWorker)
+    pipeline_location = 'pipelines/wiki_yahoo_scrapper_pipeline.yaml'
+    yamlPipelineExecutor = YamlPipelineExecutor(pipeline_location=pipeline_location)
 
-    
-    for i in range(len(current_workers)):
-        # wait for the thread to finish
-        current_workers[i].join()
-        
+    scraper_start_time = time.time()  # <-- move this up
+    yamlPipelineExecutor.process_pipeline()
     end_time = time.time()
-    print(f"Calculation took {round(end_time - scraper_start_time, 1)} seconds")
-    
-        
+
+    print(f"✅ Finished in {round(end_time - scraper_start_time, 1)} seconds")
+
         
 
 if __name__ == "__main__":
