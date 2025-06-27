@@ -1,3 +1,25 @@
+# -----------------------------------------------------------------------------
+# Pipeline Configuration for Wiki & Yahoo Finance Scraper
+#
+# This YAML file defines the pipeline for scraping S&P 500 symbols from Wikipedia,
+# fetching their financial data from Yahoo Finance, and uploading the results to
+# a Postgres database. The pipeline is composed of three main worker types and
+# two queues for data flow management:
+#
+# Queues:
+#   - SymbolQueue: Holds symbols extracted from Wikipedia to be processed by YahooFinanceWorker.
+#   - PostgresUploading: Holds processed financial data ready for upload to Postgres.
+#
+# Workers:
+#   - WikiWorker: Scrapes the list of S&P 500 symbols from Wikipedia and pushes them to SymbolQueue.
+#   - YahooFinanceWorker: Consumes symbols from SymbolQueue, scrapes financial data from Yahoo Finance,
+#     and pushes the results to PostgresUploading. Multiple instances can run in parallel.
+#   - PostgresWorker: Consumes data from PostgresUploading and uploads it to a Postgres database.
+#     Multiple instances can run in parallel for higher throughput.
+#
+# Each worker is defined with its class, location, instance count, and input/output queues.
+# This configuration enables scalable, parallel processing of financial data scraping and storage.
+# -----------------------------------------------------------------------------
 queues:
   - name: SymbolQueue
     description: Contains symbols to be scrapped from yahoo finance.
@@ -29,6 +51,7 @@ workers:
     description: Uploads data to Postgres.
     location: workers.postGresWorker
     class: PostGresMasterScheduler
+    instances: 6
     input_queue: PostgresUploading
     
 
